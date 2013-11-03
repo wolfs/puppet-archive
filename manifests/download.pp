@@ -62,7 +62,7 @@ define archive::download (
     true : {
       case $digest_type {
         'md5','sha1','sha224','sha256','sha384','sha512' : {
-          $checksum_cmd = "${digest_type}sum -c ${name}.${digest_type}"
+          $checksum_cmd = "/usr/bin/${digest_type}sum -c ${name}.${digest_type}"
         }
         default: { fail 'Unimplemented digest type' }
       }
@@ -83,7 +83,7 @@ define archive::download (
             }
 
             exec {"download digest of archive $name":
-              command => "curl ${insecure_arg} ${redirect_arg} -o ${src_target}/${name}.${digest_type} ${digest_src}",
+              command => "/usr/bin/curl ${insecure_arg} ${redirect_arg} -o ${src_target}/${name}.${digest_type} ${digest_src}",
               creates => "${src_target}/${name}.${digest_type}",
               timeout => $timeout,
               notify  => Exec["download archive $name and check sum"],
@@ -127,7 +127,7 @@ define archive::download (
   case $ensure {
     present: {
       exec {"download archive $name and check sum":
-        command   => "curl ${insecure_arg} ${redirect_arg} -o ${src_target}/${name} ${url}",
+        command   => "/usr/bin/curl ${insecure_arg} ${redirect_arg} -o ${src_target}/${name} ${url}",
         creates   => "${src_target}/${name}",
         logoutput => true,
         timeout   => $timeout,
@@ -143,7 +143,7 @@ define archive::download (
       }
 
       exec {"rm-on-error-${name}":
-        command     => "rm -f ${src_target}/${name} ${src_target}/${name}.${digest_type} && exit 1",
+        command     => "/usr/bin/rm -f ${src_target}/${name} ${src_target}/${name}.${digest_type} && exit 1",
         unless      => $checksum_cmd,
         cwd         => $src_target,
         refreshonly => true,
